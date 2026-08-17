@@ -79,3 +79,30 @@ def set_company_default_accounts(company: str) -> None:
 	if meta.has_field("round_off_cost_center"):
 		doc.round_off_cost_center = frappe.db.get_value("Cost Center", {"company": company, "is_group": 0})
 	doc.save(ignore_permissions=True)
+
+
+def export_chart_csv(company: str, path: str) -> str:
+	"""Write the company's live chart of accounts to a CSV for fiduciary
+	review (semicolon-separated, as Swiss Excel expects)."""
+	import csv
+
+	accounts = frappe.get_all(
+		"Account",
+		filters={"company": company},
+		fields=["account_number", "account_name", "root_type", "account_type", "is_group"],
+		order_by="account_number, account_name",
+	)
+	with open(path, "w", newline="", encoding="utf-8-sig") as f:
+		writer = csv.writer(f, delimiter=";")
+		writer.writerow(["Konto", "Bezeichnung", "Klasse", "Kontotyp", "Gruppe"])
+		for account in accounts:
+			writer.writerow(
+				[
+					account.account_number,
+					account.account_name,
+					account.root_type,
+					account.account_type or "",
+					"ja" if account.is_group else "",
+				]
+			)
+	return path
