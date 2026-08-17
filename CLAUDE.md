@@ -14,7 +14,7 @@ Authoritative context: `docs/BRIEFING.md`. Read it first.
    That is both the disaster-recovery test and the proof that rule 1 holds.
 3. **Run `make verify` after every change** (from `pinto_erp/`) and report the
    actual result. Never report "should work" without a green run. Verify
-   covers: migrate, fixture-drift check, `camino` naming grep, pytest,
+   covers: migrate, fixture-drift check, banned-name grep, pytest,
    Playwright.
 4. **Never touch production.** No SSH, no Dokploy API, no prod database.
 5. **No real secrets.** Only `.env.example` and anonymised `fixtures-sample/`.
@@ -34,7 +34,7 @@ Authoritative context: `docs/BRIEFING.md`. Read it first.
   reading only. The public spec (paymentstandards.ch, ISO 20022) is the source.
 - Structural template is `alyf-de/erpnext_germany` (`version-16` branch):
   hooks.py patterns, fixture layout, packaging. Skeleton, not content.
-- The string `camino` must not appear anywhere: code, comments, test data,
-  print formats, commit messages.
+- The dead former project name (BRIEFING.md §1) must not appear anywhere: code,
+  comments, test data, print formats, commit messages.
 - Swiss conventions: CHF, dates `TT.MM.JJJJ`, language `de-CH`, print formats
   also `fr-CH`. GeBüV: submitted documents are immutable, 10-year retention.

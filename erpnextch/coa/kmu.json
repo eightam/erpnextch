@@ -1,0 +1,121 @@
+{
+	"country_code": "ch",
+	"name": "Kontenrahmen KMU",
+	"tree": {
+		"Aktiven": {
+			"root_type": "Asset",
+			"account_number": "1",
+			"Umlaufvermögen": {
+				"account_number": "10",
+				"Flüssige Mittel": {
+					"account_number": "100",
+					"Kasse": {"account_number": "1000", "account_type": "Cash"},
+					"Bankguthaben": {"account_number": "1020", "account_type": "Bank"},
+					"Transferkonto": {"account_number": "1090", "account_type": "Temporary"}
+				},
+				"Forderungen aus Lieferungen und Leistungen": {
+					"account_number": "110",
+					"Forderungen aus Lieferungen und Leistungen CHF": {"account_number": "1100", "account_type": "Receivable"},
+					"Delkredere": {"account_number": "1109"}
+				},
+				"Übrige kurzfristige Forderungen": {
+					"account_number": "114",
+					"Vorsteuer MwSt Material, Waren, Dienstleistungen": {"account_number": "1170", "account_type": "Tax"},
+					"Vorsteuer MwSt Investitionen, übriger Betriebsaufwand": {"account_number": "1171", "account_type": "Tax"}
+				},
+				"Vorräte": {
+					"account_number": "120",
+					"Handelswaren": {"account_number": "1200", "account_type": "Stock"}
+				},
+				"Aktive Rechnungsabgrenzung": {"account_number": "1300"}
+			},
+			"Anlagevermögen": {
+				"account_number": "14",
+				"Maschinen und Apparate": {"account_number": "1500", "account_type": "Fixed Asset"},
+				"Mobiliar und Einrichtungen": {"account_number": "1510", "account_type": "Fixed Asset"},
+				"Büromaschinen, Informatik, Kommunikation": {"account_number": "1520", "account_type": "Fixed Asset"},
+				"Fahrzeuge": {"account_number": "1530", "account_type": "Fixed Asset"}
+			}
+		},
+		"Passiven": {
+			"root_type": "Liability",
+			"account_number": "2",
+			"Kurzfristiges Fremdkapital": {
+				"account_number": "20",
+				"Verbindlichkeiten aus Lieferungen und Leistungen": {"account_number": "2000", "account_type": "Payable"},
+				"Nicht fakturierte Wareneingänge": {"account_number": "2005", "account_type": "Stock Received But Not Billed"},
+				"Nicht fakturierte Dienstleistungen": {"account_number": "2006", "account_type": "Service Received But Not Billed"},
+				"Geschuldete MwSt": {"account_number": "2200", "account_type": "Tax"},
+				"Passive Rechnungsabgrenzung": {"account_number": "2300"}
+			},
+			"Langfristiges Fremdkapital": {
+				"account_number": "24",
+				"Bankverbindlichkeiten": {"account_number": "2400"}
+			}
+		},
+		"Eigenkapital": {
+			"root_type": "Equity",
+			"account_number": "28",
+			"Stammkapital": {"account_number": "2800", "account_type": "Equity"},
+			"Gesetzliche Gewinnreserve": {"account_number": "2900", "account_type": "Equity"},
+			"Gewinnvortrag oder Verlustvortrag": {"account_number": "2970", "account_type": "Equity"},
+			"Jahresgewinn oder Jahresverlust": {"account_number": "2979", "account_type": "Equity"}
+		},
+		"Betriebsertrag aus Lieferungen und Leistungen": {
+			"root_type": "Income",
+			"account_number": "3",
+			"Handelsertrag": {"account_number": "3200", "account_type": "Income Account"},
+			"Dienstleistungsertrag": {"account_number": "3400", "account_type": "Income Account"},
+			"Erlösminderungen": {"account_number": "3800"},
+			"Verluste aus Forderungen": {"account_number": "3805"}
+		},
+		"Material- und Warenaufwand": {
+			"root_type": "Expense",
+			"account_number": "4",
+			"Handelswarenaufwand": {"account_number": "4200", "account_type": "Cost of Goods Sold"},
+			"Bestandesänderungen Handelswaren": {"account_number": "4290", "account_type": "Stock Adjustment"},
+			"Aufwand für bezogene Dienstleistungen": {"account_number": "4400"}
+		},
+		"Personalaufwand": {
+			"root_type": "Expense",
+			"account_number": "5",
+			"Lohnaufwand": {"account_number": "5000"},
+			"Sozialversicherungsaufwand": {"account_number": "5700"},
+			"Übriger Personalaufwand": {"account_number": "5800"}
+		},
+		"Übriger Betriebsaufwand": {
+			"root_type": "Expense",
+			"account_number": "6",
+			"Raumaufwand": {"account_number": "6000"},
+			"Unterhalt, Reparaturen, Ersatz": {"account_number": "6100"},
+			"Fahrzeug- und Transportaufwand": {"account_number": "6200"},
+			"Sachversicherungen, Abgaben, Gebühren": {"account_number": "6300"},
+			"Energie- und Entsorgungsaufwand": {"account_number": "6400"},
+			"Verwaltungsaufwand": {"account_number": "6500"},
+			"Informatikaufwand": {"account_number": "6570"},
+			"Werbeaufwand": {"account_number": "6600"},
+			"Abschreibungen": {"account_number": "6800", "account_type": "Depreciation"},
+			"Finanzaufwand": {"account_number": "6900"},
+			"Kursdifferenzen": {"account_number": "6949"},
+			"Rundungsdifferenzen": {"account_number": "6960", "account_type": "Round Off"},
+			"Debitorenverluste": {"account_number": "6961"}
+		},
+		"Betriebliche Nebenerfolge": {
+			"root_type": "Income",
+			"account_number": "7",
+			"Ertrag aus Nebenbetrieben": {"account_number": "7000", "account_type": "Income Account"},
+			"Ertrag aus betrieblichen Liegenschaften": {"account_number": "7500", "account_type": "Income Account"}
+		},
+		"Ausserordentlicher Aufwand und Steuern": {
+			"root_type": "Expense",
+			"account_number": "8",
+			"Ausserordentlicher Aufwand": {"account_number": "8000"},
+			"Direkte Steuern": {"account_number": "8900"}
+		},
+		"Ausserordentlicher Ertrag": {
+			"root_type": "Income",
+			"account_number": "85",
+			"Ausserordentlicher, einmaliger Ertrag": {"account_number": "8500", "account_type": "Income Account"}
+		}
+	}
+}
