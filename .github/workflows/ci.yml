@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install ruff
+        run: pip install ruff
+      - name: Lint
+        run: ruff check erpnextch
+      - name: Format check
+        run: ruff format --check erpnextch
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install package and pytest
+        run: pip install -e . pytest
+      # The swiss_qr modules are deliberately Frappe-free, so the unit tests
+      # (including the qrbill cross-check) run without a bench or site.
+      - name: Unit tests
+        run: pytest -q erpnextch

@@ -27,9 +27,11 @@ target-version = "py312"
 [tool.ruff.lint]
 select = ["F", "E", "W", "I", "UP", "B", "RUF"]
 ignore = [
-    "E101", # indentation contains mixed spaces and tabs
-    "E402", # module level import not at top of file
-    "W191", # indentation contains tabs
+    "E101",   # indentation contains mixed spaces and tabs
+    "E402",   # module level import not at top of file
+    "W191",   # indentation contains tabs
+    "RUF001", # ambiguous unicode — the QR charset/sanitizer handles these on purpose
+    "RUF002", # ambiguous unicode in docstrings (× in dimensions)
 ]
 typing-modules = ["frappe.types.DF"]
 

@@ -9,8 +9,12 @@ NORMAL_IBAN = "CH9300762011623852957"
 QRR = "210000000003139471430009017"
 SCOR = "RF18539007547034"
 
-CREDITOR = Party(name="Rad9 GmbH", street="Tödistrasse", building_number="9", postal_code="9400", town="Rorschach")
-DEBTOR = Party(name="Velo Muster AG", street="Bahnhofstrasse", building_number="1", postal_code="8000", town="Zürich")
+CREDITOR = Party(
+	name="Rad9 GmbH", street="Tödistrasse", building_number="9", postal_code="9400", town="Rorschach"
+)
+DEBTOR = Party(
+	name="Velo Muster AG", street="Bahnhofstrasse", building_number="1", postal_code="8000", town="Zürich"
+)
 
 
 def make_bill(**overrides):

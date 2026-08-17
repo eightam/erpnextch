@@ -105,9 +105,7 @@ def _customer_party(doc) -> Party | None:
 def _party_from_address(name: str, address_name: str) -> Party:
 	address = frappe.get_doc("Address", address_name)
 	street, building_number = _split_street(address.address_line1 or "")
-	country_code = (
-		frappe.db.get_value("Country", address.country, "code") or "ch"
-	).upper()
+	country_code = (frappe.db.get_value("Country", address.country, "code") or "ch").upper()
 	return Party(
 		name=name,
 		street=street,

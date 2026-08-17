@@ -77,7 +77,5 @@ def set_company_default_accounts(company: str) -> None:
 		if meta.has_field(fieldname):
 			doc.set(fieldname, get_account(company, account_number))
 	if meta.has_field("round_off_cost_center"):
-		doc.round_off_cost_center = frappe.db.get_value(
-			"Cost Center", {"company": company, "is_group": 0}
-		)
+		doc.round_off_cost_center = frappe.db.get_value("Cost Center", {"company": company, "is_group": 0})
 	doc.save(ignore_permissions=True)
