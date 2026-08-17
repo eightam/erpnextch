@@ -1,0 +1,146 @@
+{#- Shared body for the QR-bill Sales Invoice print formats.
+    The including print format sets `language` ("de" or "fr").
+    Page margins are 0 on the Print Format so the 210 mm payment part can sit
+    flush at the bottom edge; the invoice body carries its own padding. -#}
+{%- set L = {
+	"de": {
+		"invoice": "Rechnung",
+		"date": "Datum",
+		"due": "Zahlbar bis",
+		"reference": "Referenz",
+		"vat_no": "MwSt-Nr.",
+		"pos": "Pos.",
+		"item": "Artikel",
+		"qty": "Menge",
+		"rate": "Preis",
+		"amount": "Betrag",
+		"net": "Nettobetrag",
+		"rounding": "Rundung",
+		"total": "Gesamtbetrag"
+	},
+	"fr": {
+		"invoice": "Facture",
+		"date": "Date",
+		"due": "Payable jusqu'au",
+		"reference": "Référence",
+		"vat_no": "N° TVA",
+		"pos": "Pos.",
+		"item": "Article",
+		"qty": "Quantité",
+		"rate": "Prix",
+		"amount": "Montant",
+		"net": "Montant net",
+		"rounding": "Arrondi",
+		"total": "Montant total"
+	}
+}[language] -%}
+<style>
+	/* frappe's PDF pipeline reads these four explicit properties off
+	   .print-format and passes them to wkhtmltopdf as page margins. */
+	.print-format {
+		margin-top: 0mm;
+		margin-bottom: 0mm;
+		margin-left: 0mm;
+		margin-right: 0mm;
+		padding: 0;
+	}
+	.no-print, .visible-pdf ~ .btn, .print-toolbar, .page-break-message { display: none !important; }
+	body > :not(.print-format-wrapper):not(.print-format) a { display: none; }
+	.qr-invoice-body { padding: 12mm 15mm 4mm 15mm; font-size: 9pt; }
+	.qr-invoice-body .sender { font-size: 8pt; color: #333; margin-bottom: 10mm; }
+	.qr-invoice-body .head { width: 100%; margin-bottom: 8mm; }
+	.qr-invoice-body .head td { vertical-align: top; }
+	.qr-invoice-body .meta td { padding: 0 6mm 1mm 0; }
+	.qr-invoice-body h2 { font-size: 13pt; margin: 0 0 6mm 0; }
+	.qr-invoice-body table.items { width: 100%; border-collapse: collapse; }
+	.qr-invoice-body table.items th { text-align: left; border-bottom: 1px solid #000; padding: 1mm 2mm; }
+	.qr-invoice-body table.items td { border-bottom: 0.5px solid #999; padding: 1.5mm 2mm; vertical-align: top; }
+	.qr-invoice-body .num { text-align: right; white-space: nowrap; }
+	.qr-invoice-body table.totals { margin-top: 4mm; margin-left: auto; border-collapse: collapse; }
+	.qr-invoice-body table.totals td { padding: 1mm 2mm; }
+	.qr-invoice-body table.totals tr.grand td { border-top: 1px solid #000; font-weight: bold; }
+	/* Own page, payment part flush at the bottom edge (spec: bottom of an A4
+	   sheet; delivery on a separate enclosure page is permitted). */
+	.qr-payment-part { page-break-before: always; position: relative; height: 295mm; }
+	.qr-payment-part img { width: 210mm; height: 105mm; display: block; position: absolute; bottom: 0; left: 0; }
+</style>
+<div class="qr-invoice-body">
+	<table class="head">
+		<tr>
+			<td style="width: 55%">
+				<div class="sender">
+					{{ doc.company }}{% if doc.company_address_display %} ·
+					{{ doc.company_address_display | striptags }}{% endif %}
+				</div>
+				<div>
+					<strong>{{ doc.customer_name }}</strong><br>
+					{{ doc.address_display or "" }}
+				</div>
+			</td>
+			<td>
+				<div><strong>{{ doc.company }}</strong><br>{{ doc.company_address_display or "" }}</div>
+				{% if doc.company_tax_id %}<div>{{ L.vat_no }} {{ doc.company_tax_id }}</div>{% endif %}
+			</td>
+		</tr>
+	</table>
+
+	<h2>{{ L.invoice }} {{ doc.name }}</h2>
+	<table class="meta">
+		<tr>
+			<td><strong>{{ L.date }}</strong><br>{{ doc.get_formatted("posting_date") }}</td>
+			<td><strong>{{ L.due }}</strong><br>{{ doc.get_formatted("due_date") }}</td>
+			{% if doc.swiss_qr_reference %}
+			<td><strong>{{ L.reference }}</strong><br>{{ formatted_qr_reference(doc) }}</td>
+			{% endif %}
+		</tr>
+	</table>
+
+	<table class="items">
+		<thead>
+			<tr>
+				<th>{{ L.pos }}</th>
+				<th>{{ L.item }}</th>
+				<th class="num">{{ L.qty }}</th>
+				<th class="num">{{ L.rate }}</th>
+				<th class="num">{{ L.amount }}</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for item in doc.items %}
+			<tr>
+				<td>{{ item.idx }}</td>
+				<td>{{ item.item_code }}<br><span style="color:#333">{{ item.item_name }}</span></td>
+				<td class="num">{{ item.get_formatted("qty") }} {{ item.uom or item.stock_uom }}</td>
+				<td class="num">{{ item.get_formatted("rate") }}</td>
+				<td class="num">{{ item.get_formatted("amount") }}</td>
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+
+	<table class="totals">
+		<tr>
+			<td>{{ L.net }}</td>
+			<td class="num">{{ doc.get_formatted("net_total") }}</td>
+		</tr>
+		{% for tax in doc.taxes %}
+		<tr>
+			<td>{{ tax.description }}</td>
+			<td class="num">{{ tax.get_formatted("tax_amount") }}</td>
+		</tr>
+		{% endfor %}
+		{% if doc.rounding_adjustment %}
+		<tr>
+			<td>{{ L.rounding }}</td>
+			<td class="num">{{ doc.get_formatted("rounding_adjustment") }}</td>
+		</tr>
+		{% endif %}
+		<tr class="grand">
+			<td>{{ L.total }} {{ doc.currency }}</td>
+			<td class="num">{{ doc.get_formatted("rounded_total") if doc.rounded_total else doc.get_formatted("grand_total") }}</td>
+		</tr>
+	</table>
+</div>
+<div class="qr-payment-part">
+	<img src="{{ qr_bill_svg(doc, language) }}">
+</div>

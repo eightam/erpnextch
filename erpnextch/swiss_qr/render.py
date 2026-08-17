@@ -26,12 +26,13 @@ def _party_dict(party):
 	}
 
 
-def render_svg(data: QRBillData, language: str = "de") -> str:
-	"""Render the payment part (105×210 mm) as an SVG string."""
+def build_qrbill(data: QRBillData, language: str = "de") -> QRBill:
+	"""Validated QRBill instance for the given data (exposed for tests that
+	cross-check our canonical payload against what qrbill encodes)."""
 	if language not in LANGUAGES:
 		raise ValueError(f"Language must be one of {LANGUAGES}, got {language!r}")
 	data.validate()
-	bill = QRBill(
+	return QRBill(
 		account=data.account,
 		creditor=_party_dict(data.creditor),
 		debtor=_party_dict(data.debtor) if data.debtor else None,
@@ -41,6 +42,11 @@ def render_svg(data: QRBillData, language: str = "de") -> str:
 		additional_information=data.message or None,
 		language=language,
 	)
+
+
+def render_svg(data: QRBillData, language: str = "de") -> str:
+	"""Render the payment part (105×210 mm) as an SVG string."""
+	bill = build_qrbill(data, language=language)
 	out = io.StringIO()
 	bill.as_svg(out, full_page=False)
 	return out.getvalue()
