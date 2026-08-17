@@ -136,7 +136,7 @@
 		</tr>
 		{% endif %}
 		<tr class="grand">
-			<td>{{ L.total }} {{ doc.currency }}</td>
+			<td>{{ L.total }}</td>
 			<td class="num">{{ doc.get_formatted("rounded_total") if doc.rounded_total else doc.get_formatted("grand_total") }}</td>
 		</tr>
 	</table>

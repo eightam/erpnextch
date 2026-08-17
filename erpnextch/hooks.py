@@ -9,6 +9,9 @@ app_license = "GPL-3.0"
 fixtures = [
 	{"dt": "Custom Field", "filters": [["module", "=", "ERPNext CH"]]},
 	{"dt": "Print Format", "filters": [["module", "=", "ERPNext CH"]]},
+	# Swiss postal convention instead of ERPNext's generic template
+	# (no upper-casing, country line only on foreign addresses).
+	{"dt": "Address Template", "filters": [["country", "=", "Switzerland"]]},
 ]
 
 doc_events = {
