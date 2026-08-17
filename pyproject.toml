@@ -1,0 +1,43 @@
+[project]
+name = "erpnextch"
+authors = [
+    { name = "8am GmbH", email = "lobeck@8am.ch"}
+]
+description = "Swiss localisation for ERPNext: QR-bill, camt import, Kontenrahmen KMU, MwSt."
+requires-python = ">=3.12"
+readme = "README.md"
+license = { file = "LICENSE" }
+dynamic = ["version"]
+dependencies = [
+    "qrbill~=1.2.0",
+]
+
+[build-system]
+requires = ["flit_core >=3.4,<4"]
+build-backend = "flit_core.buildapi"
+
+[tool.bench.frappe-dependencies]
+frappe = ">=16.0.0,<17.0.0"
+erpnext = ">=16.0.0,<17.0.0"
+
+[tool.ruff]
+line-length = 110
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["F", "E", "W", "I", "UP", "B", "RUF"]
+ignore = [
+    "E101", # indentation contains mixed spaces and tabs
+    "E402", # module level import not at top of file
+    "W191", # indentation contains tabs
+]
+typing-modules = ["frappe.types.DF"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "tab"
+
+[project.urls]
+Homepage = "https://github.com/eightam/erpnextch"
+Repository = "https://github.com/eightam/erpnextch.git"
+"Bug Reports" = "https://github.com/eightam/erpnextch/issues"
