@@ -24,5 +24,7 @@ jinja = {
 	"methods": [
 		"erpnextch.swiss_qr.sales_invoice.qr_bill_svg",
 		"erpnextch.swiss_qr.sales_invoice.formatted_qr_reference",
+		"erpnextch.swiss_qr.sales_invoice.formatted_company_iban",
+		"erpnextch.swiss_qr.sales_invoice.company_logo_data_uri",
 	],
 }

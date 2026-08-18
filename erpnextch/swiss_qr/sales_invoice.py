@@ -70,6 +70,31 @@ def qr_bill_svg(doc, language: str = "de") -> str:
 	return render_svg_data_uri(get_qr_bill_data(doc), language=language)
 
 
+def company_logo_data_uri(company: str) -> str:
+	"""Jinja method: the company logo inlined as a data URI, so PDF rendering
+	never depends on fetching site assets over the network."""
+	import base64
+	import mimetypes
+
+	file_url = frappe.db.get_value("Company", company, "company_logo")
+	if not file_url:
+		return ""
+	file_name = frappe.db.get_value("File", {"file_url": file_url}, "name")
+	if not file_name:
+		return ""
+	content = frappe.get_doc("File", file_name).get_content()
+	if isinstance(content, str):
+		content = content.encode("utf-8")
+	mime = mimetypes.guess_type(file_url)[0] or "image/png"
+	return f"data:{mime};base64,{base64.b64encode(content).decode('ascii')}"
+
+
+def formatted_company_iban(company: str) -> str:
+	"""Jinja method: the company's IBAN in display grouping (blocks of 4)."""
+	iban = get_company_iban(company) or ""
+	return " ".join(iban[i : i + 4] for i in range(0, len(iban), 4))
+
+
 def formatted_qr_reference(doc) -> str:
 	"""Jinja method: the frozen reference in its print grouping."""
 	value = doc.get("swiss_qr_reference") or ""
