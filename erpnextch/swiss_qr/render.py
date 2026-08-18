@@ -7,12 +7,18 @@ qrbill owns that drawing; we only hand it validated data.
 
 import base64
 import io
+import re
 
+import svgwrite
 from qrbill import QRBill
+from qrbill.bill import mm
 
 from erpnextch.swiss_qr.payload import QRBillData
 
 LANGUAGES = ("de", "fr", "it", "en")
+
+# Swiss QR-bill spec: the code itself is 46×46 mm, with a bit of quiet margin.
+_QR_SIZE_MM = 46
 
 
 def _party_dict(party):
@@ -55,4 +61,37 @@ def render_svg(data: QRBillData, language: str = "de") -> str:
 def render_svg_data_uri(data: QRBillData, language: str = "de") -> str:
 	"""SVG as a base64 data URI, for embedding in print formats."""
 	svg = render_svg(data, language=language)
+	return "data:image/svg+xml;base64," + base64.b64encode(svg.encode("utf-8")).decode("ascii")
+
+
+def render_qr_svg(data: QRBillData, language: str = "de") -> str:
+	"""Render just the 46×46 mm QR code with its Swiss-cross overlay (no
+	payment slip text) — for on-screen display outside a printed document.
+	Reuses qrbill's own QR path and cross drawing so the result matches the
+	code embedded in the full payment part byte for byte."""
+	bill = build_qrbill(data, language=language)
+	im = bill.qr_image()
+	buff = io.BytesIO()
+	im.save(buff)
+	m = re.search(r'<path [^>]*>', buff.getvalue().decode())
+	if not m:
+		raise ValueError("Unable to extract path data from the QR code SVG image")
+	m = re.search(r' d="([^"]*)"', m.group())
+	if not m:
+		raise ValueError("Unable to extract path d attributes from the SVG QR code source")
+	path_data = m.groups()[0]
+
+	dwg = svgwrite.Drawing(size=(mm(_QR_SIZE_MM), mm(_QR_SIZE_MM)))
+	grp = dwg.add(dwg.g())
+	scale_factor = mm(_QR_SIZE_MM) / im.width
+	path = dwg.path(d=path_data, style="fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none")
+	path.scale(scale_factor)
+	grp.add(path)
+	bill.draw_swiss_cross(dwg, grp, (0, 0), im.width * scale_factor)
+	return dwg.tostring()
+
+
+def render_qr_svg_data_uri(data: QRBillData, language: str = "de") -> str:
+	"""QR-only SVG as a base64 data URI, for embedding directly in an <img>."""
+	svg = render_qr_svg(data, language=language)
 	return "data:image/svg+xml;base64," + base64.b64encode(svg.encode("utf-8")).decode("ascii")

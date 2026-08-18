@@ -11,7 +11,7 @@ import frappe
 
 from erpnextch.swiss_qr import reference as ref
 from erpnextch.swiss_qr.payload import Party, QRBillData
-from erpnextch.swiss_qr.render import render_svg_data_uri
+from erpnextch.swiss_qr.render import render_qr_svg_data_uri, render_svg_data_uri
 
 QRR_BASE_DIGITS = ref.QRR_LENGTH - 1
 
@@ -68,6 +68,12 @@ def get_qr_bill_data(doc) -> QRBillData:
 def qr_bill_svg(doc, language: str = "de") -> str:
 	"""Jinja method for print formats: payment-part SVG as a data URI."""
 	return render_svg_data_uri(get_qr_bill_data(doc), language=language)
+
+
+def qr_code_svg(doc, language: str = "de") -> str:
+	"""Just the 46×46 mm QR code (no payment slip text) as a data URI, for
+	on-screen display such as the dealer portal's invoice detail page."""
+	return render_qr_svg_data_uri(get_qr_bill_data(doc), language=language)
 
 
 def company_logo_data_uri(company: str) -> str:
