@@ -76,13 +76,12 @@ def qr_code_svg(doc, language: str = "de") -> str:
 	return render_qr_svg_data_uri(get_qr_bill_data(doc), language=language)
 
 
-def company_logo_data_uri(company: str) -> str:
-	"""Jinja method: the company logo inlined as a data URI, so PDF rendering
-	never depends on fetching site assets over the network."""
+def file_data_uri(file_url: str) -> str:
+	"""Jinja method: a site File inlined as a data URI, so PDF rendering never
+	depends on fetching site assets over the network."""
 	import base64
 	import mimetypes
 
-	file_url = frappe.db.get_value("Company", company, "company_logo")
 	if not file_url:
 		return ""
 	file_name = frappe.db.get_value("File", {"file_url": file_url}, "name")
@@ -93,6 +92,11 @@ def company_logo_data_uri(company: str) -> str:
 		content = content.encode("utf-8")
 	mime = mimetypes.guess_type(file_url)[0] or "image/png"
 	return f"data:{mime};base64,{base64.b64encode(content).decode('ascii')}"
+
+
+def company_logo_data_uri(company: str) -> str:
+	"""Jinja method: the logo on Company, inlined as a data URI."""
+	return file_data_uri(frappe.db.get_value("Company", company, "company_logo"))
 
 
 def formatted_company_iban(company: str) -> str:
