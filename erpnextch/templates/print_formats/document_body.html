@@ -14,12 +14,24 @@
       contact_email       address printed in the band on invoices, default none
       support_email       address printed in the band on orders and delivery
                           notes; defaults to contact_email
+      mode                set to "pick_list" to render a Sales Order as an
+                          internal Rüstschein (picking list): no prices, a
+                          warehouse column instead; default none
     Everything else is data-driven: Company address and tax id, the default
     bank account IBAN, payment terms.
 
     Print background is plain white (documents are printed). No flexbox and no
     grid — wkhtmltopdf's WebKit predates both; tables and absolute positioning
-    only. Page margins are 0 on the Print Format and on `body` (the browser
+    only.
+
+    Every class here is `qr-`-prefixed on purpose. Frappe's print.bundle.css
+    ships Bootstrap 3 into both the print preview and the wkhtmltopdf render,
+    and some of its selectors are unscoped — `.label` alone sets
+    `display: inline` plus a `@media print` border, which silently turns a
+    `<td class="label">` into an inline box and draws a frame around it.
+    Never introduce a bare class name in this template.
+
+    Page margins are 0 on the Print Format and on `body` (the browser
     default of 8px would otherwise shift the whole sheet); each page is a
     fixed-height container so the payment band, the footer and the payment
     part can sit at the bottom edge. -#}
@@ -65,6 +77,10 @@
 		"delivery_hint": "Bitte prüfen Sie die Sendung bei Erhalt auf Vollständigkeit und Transportschäden.",
 		"contact": "Fragen: {0}",
 		"contact_invoice": "Fragen zur Rechnung: {0}",
+		"pick_title": "Rüstschein",
+		"warehouse": "Lager",
+		"pick_band_title": "Kommissionierung",
+		"pick_band_hint": "Bitte Positionen anhand der Menge kommissionieren und für den Versand bereitstellen.",
 		"part_title": "Zahlteil zu Rechnung",
 		"part_intro": "Der untenstehende Zahlteil entspricht dem Schweizer QR-Rechnungs-Standard (Implementation Guidelines QR-Rechnung, Version 2.4). Für die Zahlung im E-Banking den QR-Code scannen; für die Einzahlung am Postschalter den Zahlteil an der Linie abtrennen.",
 		"due_at": "Fällig am",
@@ -103,6 +119,10 @@
 		"delivery_hint": "Veuillez vérifier l'envoi à la réception (exhaustivité et dommages de transport).",
 		"contact": "Questions : {0}",
 		"contact_invoice": "Questions concernant la facture : {0}",
+		"pick_title": "Bon de préparation",
+		"warehouse": "Emplacement",
+		"pick_band_title": "Préparation de commande",
+		"pick_band_hint": "Veuillez préparer les articles selon les quantités indiquées pour l'expédition.",
 		"part_title": "Section paiement de la facture",
 		"part_intro": "La section paiement ci-dessous est conforme au standard suisse de la facture QR (Implementation Guidelines QR-facture, version 2.4). Pour le paiement par e-banking, scanner le code QR ; pour le versement au guichet postal, détacher la section paiement le long de la ligne.",
 		"due_at": "Échéance",
@@ -110,11 +130,15 @@
 	}
 }[language] -%}
 {#- Per-doctype shape: which meta cells, whether money is shown, how many
-    sheets. A Lieferschein carries no prices — Swiss trade convention. -#}
+    sheets. A Lieferschein carries no prices — Swiss trade convention. A
+    Rüstschein (`mode = "pick_list"`) is a Sales Order rendered as an
+    internal warehouse picking list: no prices, a warehouse column instead. -#}
+{%- set mode = mode | default("") -%}
 {%- set is_invoice = doc.doctype == "Sales Invoice" -%}
 {%- set is_order = doc.doctype == "Sales Order" -%}
 {%- set is_delivery = doc.doctype == "Delivery Note" -%}
-{%- set show_money = not is_delivery -%}
+{%- set is_pick_list = mode == "pick_list" -%}
+{%- set show_money = not is_delivery and not is_pick_list -%}
 {%- set pages = 2 if is_invoice else 1 -%}
 {#- Logo inlined as data URI — wkhtmltopdf must not depend on fetching
     site assets over the network. -#}
@@ -173,7 +197,7 @@
 		color: #212724;
 	}
 	.qr-page { height: 296mm; }
-	.qr-page .inner, .qr-payment-part .inner { padding: 11.6mm 13.8mm 0 13.8mm; }
+	.qr-page .qr-inner, .qr-payment-part .qr-inner { padding: 11.6mm 13.8mm 0 13.8mm; }
 	.qr-page table, .qr-payment-part table { border-collapse: collapse; }
 
 	/* Header: logo left, document title right, accent rule underneath. */
@@ -184,7 +208,7 @@
 		font-weight: 700; font-size: 6.8pt; letter-spacing: 0.22em; line-height: 1.2;
 		color: #949A90; padding-top: 1.3mm;
 	}
-	.qr-head .right { text-align: right; }
+	.qr-head .qr-right { text-align: right; }
 	.qr-title {
 		font-family: {{ display_font_stack }};
 		font-weight: 700; font-size: 18.75pt; letter-spacing: 0.14em;
@@ -203,11 +227,11 @@
 	}
 	.qr-parties { width: 100%; margin-top: 9mm; }
 	.qr-parties td { vertical-align: top; padding: 0; }
-	.qr-parties td.label { padding-bottom: 2.4mm; }
-	.qr-parties .to-name { font-weight: 700; font-size: 12.75pt; line-height: 1.25; }
-	.qr-parties .to-address { font-size: 9.75pt; color: #6B7168; line-height: 1.6; padding-top: 0.8mm; }
-	.qr-parties .from-name { font-weight: 600; font-size: 9.75pt; line-height: 1.6; }
-	.qr-parties .from-address { font-size: 9.75pt; color: #6B7168; line-height: 1.6; }
+	.qr-parties td.qr-label-cell { padding-bottom: 2.4mm; }
+	.qr-parties .qr-to-name { font-weight: 700; font-size: 12.75pt; line-height: 1.25; }
+	.qr-parties .qr-to-address { font-size: 9.75pt; color: #6B7168; line-height: 1.6; padding-top: 0.8mm; }
+	.qr-parties .qr-from-name { font-weight: 600; font-size: 9.75pt; line-height: 1.6; }
+	.qr-parties .qr-from-address { font-size: 9.75pt; color: #6B7168; line-height: 1.6; }
 
 	/* Date / due date / reference strip. */
 	table.qr-meta {
@@ -215,10 +239,10 @@
 		border-top: 1px solid #DEE2DA; border-bottom: 1px solid #DEE2DA;
 	}
 	table.qr-meta td { padding: 4mm 0; vertical-align: top; }
-	table.qr-meta td.divided { border-left: 1px solid #E4E7DE; padding-left: 6.35mm; }
+	table.qr-meta td.qr-divided { border-left: 1px solid #E4E7DE; padding-left: 6.35mm; }
 	table.qr-meta .qr-label { padding-bottom: 1.6mm; }
-	table.qr-meta .value { font-weight: 600; font-size: 10.5pt; line-height: 1.2; white-space: nowrap; }
-	table.qr-meta .value.ref { font-size: 8.6pt; }
+	table.qr-meta .qr-value { font-weight: 600; font-size: 10.5pt; line-height: 1.2; white-space: nowrap; }
+	table.qr-meta .qr-value.qr-ref { font-size: 8.6pt; }
 
 	/* Items. */
 	table.qr-items { width: 100%; margin-top: 8.5mm; table-layout: fixed; }
@@ -231,32 +255,32 @@
 		border-bottom: 1px solid #E4E7DE; padding: 4.2mm 0;
 		vertical-align: top;
 	}
-	table.qr-items .num { text-align: right; white-space: nowrap; }
-	table.qr-items .pos { font-weight: 700; font-size: 9.75pt; color: #949A90; }
-	table.qr-items .item { padding-right: 5mm; }
-	table.qr-items .item-name { font-weight: 600; font-size: 10.5pt; line-height: 1.35; }
-	table.qr-items .item-code {
+	table.qr-items .qr-num { text-align: right; white-space: nowrap; }
+	table.qr-items .qr-pos { font-weight: 700; font-size: 9.75pt; color: #949A90; }
+	table.qr-items .qr-item { padding-right: 5mm; }
+	table.qr-items .qr-item-name { font-weight: 600; font-size: 10.5pt; line-height: 1.35; }
+	table.qr-items .qr-item-code {
 		font-family: {{ mono_stack }}; font-size: 7.9pt; color: #949A90;
 		letter-spacing: 0.02em; line-height: 1.3; padding-top: 1mm;
 	}
-	table.qr-items .qty { font-weight: 600; font-size: 10.1pt; }
-	table.qr-items .rate { font-size: 10.1pt; color: #6B7168; }
-	table.qr-items .amount { font-weight: 700; font-size: 10.1pt; }
+	table.qr-items .qr-qty { font-weight: 600; font-size: 10.1pt; }
+	table.qr-items .qr-rate { font-size: 10.1pt; color: #6B7168; }
+	table.qr-items .qr-amount { font-weight: 700; font-size: 10.1pt; }
 
 	/* Totals. */
 	table.qr-totals { margin-top: 5.8mm; margin-left: auto; width: 103.7mm; }
 	table.qr-totals td { padding: 1.85mm 0; font-size: 9.75pt; line-height: 1.3; color: #6B7168; }
-	table.qr-totals td.num { text-align: right; white-space: nowrap; color: #212724; }
-	table.qr-totals tr.last td { padding-bottom: 3.4mm; border-bottom: 1px solid #DEE2DA; }
-	table.qr-totals tr.grand td {
+	table.qr-totals td.qr-num { text-align: right; white-space: nowrap; color: #212724; }
+	table.qr-totals tr.qr-last td { padding-bottom: 3.4mm; border-bottom: 1px solid #DEE2DA; }
+	table.qr-totals tr.qr-grand td {
 		padding-top: 4mm; padding-bottom: 0;
 		font-family: {{ display_font_stack }}; color: #212724; vertical-align: baseline;
 	}
-	table.qr-totals tr.grand td.label {
+	table.qr-totals tr.qr-grand td.qr-label-cell {
 		font-weight: 700; font-size: 10.5pt; letter-spacing: 0.14em; text-transform: uppercase;
 	}
-	table.qr-totals tr.grand td.num { font-weight: 700; font-size: 22.5pt; line-height: 1; }
-	table.qr-totals tr.grand .cur {
+	table.qr-totals tr.qr-grand td.qr-num { font-weight: 700; font-size: 22.5pt; line-height: 1; }
+	table.qr-totals tr.qr-grand .qr-cur {
 		font-size: 11.25pt; letter-spacing: 0.2em; color: #6B7168; padding-right: 1.5mm;
 	}
 
@@ -265,47 +289,47 @@
 	.qr-band { background: #EDEEE8; padding: 4.8mm 5.8mm; }
 	table.qr-band-inner { width: 100%; table-layout: fixed; }
 	table.qr-band-inner td { vertical-align: top; padding: 0; }
-	table.qr-band-inner td.bar { width: 1.1mm; background: {{ accent }}; font-size: 0; }
-	table.qr-band-inner td.text { padding-left: 6.9mm; }
-	table.qr-band-inner .title { font-weight: 700; font-size: 9.75pt; line-height: 1.3; padding-bottom: 1mm; }
-	table.qr-band-inner .hint { font-size: 9pt; color: #6B7168; line-height: 1.5; }
+	table.qr-band-inner td.qr-bar { width: 1.1mm; background: {{ accent }}; font-size: 0; }
+	table.qr-band-inner td.qr-text { padding-left: 6.9mm; }
+	table.qr-band-inner .qr-band-title { font-weight: 700; font-size: 9.75pt; line-height: 1.3; padding-bottom: 1mm; }
+	table.qr-band-inner .qr-band-hint { font-size: 9pt; color: #6B7168; line-height: 1.5; }
 	table.qr-footer {
 		width: 100%; font-size: 7.5pt; color: #949A90; line-height: 1.5;
 	}
 	table.qr-footer td { padding: 4.2mm 0 5mm 0; vertical-align: top; }
-	table.qr-footer td.center { text-align: center; }
-	table.qr-footer td.right { text-align: right; white-space: nowrap; }
+	table.qr-footer td.qr-center { text-align: center; }
+	table.qr-footer td.qr-right { text-align: right; white-space: nowrap; }
 
 	/* Payment part sheet. */
 	.qr-payment-part { page-break-before: always; height: 295mm; }
 	.qr-part-head { width: 100%; }
 	.qr-part-head td { vertical-align: bottom; padding: 0; }
 	.qr-part-head img { display: block; width: 24.3mm; }
-	.qr-part-head td.right {
+	.qr-part-head td.qr-right {
 		text-align: right; font-weight: 700; font-size: 8.25pt; line-height: 1.2;
 		letter-spacing: 0.06em; color: #6B7168; text-transform: uppercase;
 	}
 	.qr-part-rule { border-bottom: 1.5px solid #212724; padding-bottom: 3.7mm; }
 	table.qr-part-info { width: 100%; margin-top: 6.9mm; table-layout: fixed; }
 	table.qr-part-info td { vertical-align: top; padding: 0; }
-	table.qr-part-info td.intro { font-size: 9pt; color: #6B7168; line-height: 1.6; padding-right: 7.9mm; }
-	table.qr-part-info td.divider { width: 0.3mm; background: #DEE2DA; font-size: 0; }
-	table.qr-part-info td.figures { width: 52.9mm; padding-left: 7.9mm; }
+	table.qr-part-info td.qr-intro { font-size: 9pt; color: #6B7168; line-height: 1.6; padding-right: 7.9mm; }
+	table.qr-part-info td.qr-divider { width: 0.3mm; background: #DEE2DA; font-size: 0; }
+	table.qr-part-info td.qr-figures { width: 52.9mm; padding-left: 7.9mm; }
 	table.qr-part-info .qr-label { padding-bottom: 1.6mm; }
-	table.qr-part-info .figure { font-weight: 700; font-size: 14.25pt; line-height: 1.2; white-space: nowrap; }
-	table.qr-part-info .spacer { height: 3.7mm; font-size: 0; line-height: 0; }
-	.qr-payment-part img.part { width: 210mm; height: 105mm; display: block; position: absolute; bottom: 0; left: 0; }
+	table.qr-part-info .qr-figure { font-weight: 700; font-size: 14.25pt; line-height: 1.2; white-space: nowrap; }
+	table.qr-part-info .qr-spacer { height: 3.7mm; font-size: 0; line-height: 0; }
+	.qr-payment-part img.qr-part-img { width: 210mm; height: 105mm; display: block; position: absolute; bottom: 0; left: 0; }
 </style>
 <div class="qr-page">
-	<div class="inner">
+	<div class="qr-inner">
 		<table class="qr-head">
 			<tr>
 				<td>
 					{% if logo %}<img src="{{ logo }}">{% endif %}
 					{% if tagline %}<div class="qr-tagline">{{ tagline }}</div>{% endif %}
 				</td>
-				<td class="right">
-					<div class="qr-title">{{ L[doc.doctype] }}</div>
+				<td class="qr-right">
+					<div class="qr-title">{{ L.pick_title if is_pick_list else L[doc.doctype] }}</div>
 					<div class="qr-docno">{{ doc.name }}</div>
 				</td>
 			</tr>
@@ -314,21 +338,21 @@
 
 		<table class="qr-parties">
 			<tr>
-				<td style="width: 53%;" class="label">
-					<div class="qr-label">{{ L.ship_to if is_delivery else L.recipient }}</div>
+				<td style="width: 53%;" class="qr-label-cell">
+					<div class="qr-label">{{ L.ship_to if (is_delivery or is_pick_list) else L.recipient }}</div>
 				</td>
-				<td class="label"><div class="qr-label">{{ L.sender }}</div></td>
+				<td class="qr-label-cell"><div class="qr-label">{{ L.sender }}</div></td>
 			</tr>
 			<tr>
 				<td>
-					<div class="to-name">{{ doc.customer_name }}</div>
-					<div class="to-address">
+					<div class="qr-to-name">{{ doc.customer_name }}</div>
+					<div class="qr-to-address">
 						{{ (doc.get("shipping_address") if is_delivery else "") or doc.address_display or "" }}
 					</div>
 				</td>
 				<td>
-					<div class="from-name">{{ doc.company }}</div>
-					<div class="from-address">
+					<div class="qr-from-name">{{ doc.company }}</div>
+					<div class="qr-from-address">
 						{{ doc.get("company_address_display") or "" }}
 						{% if company_tax_id %}{{ L.vat_no }} {{ company_tax_id }}{% endif %}
 					</div>
@@ -339,9 +363,9 @@
 		<table class="qr-meta">
 			<tr>
 				{% for cell in meta_cells %}
-				<td{% if loop.index < 3 %} style="width: 34.4mm;"{% endif %}{% if not loop.first %} class="divided"{% endif %}>
+				<td{% if loop.index < 3 %} style="width: 34.4mm;"{% endif %}{% if not loop.first %} class="qr-divided"{% endif %}>
 					<div class="qr-label">{{ cell.label }}</div>
-					<div class="value{% if cell.ref %} ref{% endif %}">{{ cell.value }}</div>
+					<div class="qr-value{% if cell.ref %} qr-ref{% endif %}">{{ cell.value }}</div>
 				</td>
 				{% endfor %}
 				{% if meta_cells | length < 3 %}<td></td>{% endif %}
@@ -353,52 +377,58 @@
 				<tr>
 					<th style="width: 9mm;">{{ L.pos }}</th>
 					<th>{{ L.item }}</th>
-					<th class="num" style="width: 16.4mm;">{{ L.qty }}</th>
+					<th class="qr-num" style="width: 16.4mm;">{{ L.qty }}</th>
 					{% if show_money %}
-					<th class="num" style="width: 30.7mm;">{{ L.rate }}</th>
-					<th class="num" style="width: 30.7mm;">{{ L.amount }}</th>
+					<th class="qr-num" style="width: 30.7mm;">{{ L.rate }}</th>
+					<th class="qr-num" style="width: 30.7mm;">{{ L.amount }}</th>
+					{% elif is_pick_list %}
+					<th class="qr-num" style="width: 40mm;">{{ L.warehouse }}</th>
 					{% endif %}
 				</tr>
 			</thead>
 			<tbody>
 				{% for item in doc.items %}
+				{% if not is_pick_list or item.is_stock_item %}
 				<tr>
-					<td class="pos">{{ item.idx }}</td>
-					<td class="item">
-						<div class="item-name">{{ item.item_name }}</div>
-						<div class="item-code">{{ item.item_code }}</div>
+					<td class="qr-pos">{{ item.idx }}</td>
+					<td class="qr-item">
+						<div class="qr-item-name">{{ item.item_name }}</div>
+						<div class="qr-item-code">{{ item.item_code }}</div>
 					</td>
-					<td class="num qty">{{ item.get_formatted("qty") }}</td>
+					<td class="qr-num qr-qty">{{ item.get_formatted("qty") }}</td>
 					{% if show_money %}
-					<td class="num rate">{{ item.get_formatted("rate") }}</td>
-					<td class="num amount">{{ item.get_formatted("amount") }}</td>
+					<td class="qr-num qr-rate">{{ item.get_formatted("rate") }}</td>
+					<td class="qr-num qr-amount">{{ item.get_formatted("amount") }}</td>
+					{% elif is_pick_list %}
+					<td class="qr-num qr-rate">{{ (item.warehouse or "").split(" - ")[0] }}</td>
 					{% endif %}
 				</tr>
+				{% endif %}
 				{% endfor %}
 			</tbody>
 		</table>
 
 		{% if show_money %}
 		<table class="qr-totals">
-			<tr{% if not doc.taxes and not doc.rounding_adjustment %} class="last"{% endif %}>
+			<tr{% if not doc.taxes and not doc.rounding_adjustment %} class="qr-last"{% endif %}>
 				<td>{{ L.net }}</td>
-				<td class="num">{{ doc.get_formatted("net_total") }}</td>
+				<td class="qr-num">{{ doc.get_formatted("net_total") }}</td>
 			</tr>
 			{% for tax in doc.taxes %}
-			<tr{% if loop.last and not doc.rounding_adjustment %} class="last"{% endif %}>
+			<tr{% if loop.last and not doc.rounding_adjustment %} class="qr-last"{% endif %}>
 				<td>{{ tax.description }}</td>
-				<td class="num">{{ tax.get_formatted("tax_amount") }}</td>
+				<td class="qr-num">{{ tax.get_formatted("tax_amount") }}</td>
 			</tr>
 			{% endfor %}
 			{% if doc.rounding_adjustment %}
-			<tr class="last">
+			<tr class="qr-last">
 				<td>{{ L.rounding }}</td>
-				<td class="num">{{ doc.get_formatted("rounding_adjustment") }}</td>
+				<td class="qr-num">{{ doc.get_formatted("rounding_adjustment") }}</td>
 			</tr>
 			{% endif %}
-			<tr class="grand">
-				<td class="label">{{ L.total }}</td>
-				<td class="num"><span class="cur">{{ doc.currency }}</span>{{ total_number }}</td>
+			<tr class="qr-grand">
+				<td class="qr-label-cell">{{ L.total }}</td>
+				<td class="qr-num"><span class="qr-cur">{{ doc.currency }}</span>{{ total_number }}</td>
 			</tr>
 		</table>
 		{% endif %}
@@ -408,9 +438,9 @@
 		<div class="qr-band">
 			<table class="qr-band-inner">
 				<tr>
-					<td class="bar"></td>
-					<td class="text">
-						<div class="title">
+					<td class="qr-bar"></td>
+					<td class="qr-text">
+						<div class="qr-band-title">
 							{%- if is_invoice -%}
 								{%- set credit_days = frappe.utils.date_diff(doc.due_date, doc.posting_date) if doc.due_date and doc.posting_date else 0 -%}
 								{%- if credit_days > 0 -%}
@@ -418,14 +448,16 @@
 								{%- else -%}
 									{{ L.pay_by.format(doc.get_formatted("due_date")) }}
 								{%- endif -%}
+							{%- elif is_pick_list -%}
+								{{ L.pick_band_title }}
 							{%- elif is_order -%}
 								{{ L.order_title }}
 							{%- else -%}
 								{{ L.delivery_title }}
 							{%- endif -%}
 						</div>
-						<div class="hint">
-							{% if is_invoice %}{{ L.pay_hint }}{% elif is_order %}{{ L.order_hint }}{% else %}{{ L.delivery_hint }}{% endif %}
+						<div class="qr-band-hint">
+							{% if is_invoice %}{{ L.pay_hint }}{% elif is_pick_list %}{{ L.pick_band_hint }}{% elif is_order %}{{ L.order_hint }}{% else %}{{ L.delivery_hint }}{% endif %}
 							{% if is_invoice and contact_email %}
 								{{ L.contact_invoice.format(contact_email) }}
 							{% elif not is_invoice and support_email %}
@@ -439,40 +471,40 @@
 		<table class="qr-footer">
 			<tr>
 				<td>{{ doc.company }}{% if company_address_line %} · {{ company_address_line }}{% endif %}</td>
-				<td class="center">
+				<td class="qr-center">
 					{% if company_tax_id %}{{ L.vat_no }} {{ company_tax_id }} · {% endif %}
 					{{ L.iban }} {{ formatted_company_iban(doc.company) }}
 				</td>
-				<td class="right">{{ L.page }} 1 / {{ pages }}</td>
+				<td class="qr-right">{{ L.page }} 1 / {{ pages }}</td>
 			</tr>
 		</table>
 	</div>
 </div>
 {% if is_invoice %}
 <div class="qr-payment-part">
-	<div class="inner">
+	<div class="qr-inner">
 		<div class="qr-part-rule">
 			<table class="qr-part-head">
 				<tr>
 					<td>{% if logo %}<img src="{{ logo }}">{% endif %}</td>
-					<td class="right">{{ L.part_title }} {{ doc.name }}</td>
+					<td class="qr-right">{{ L.part_title }} {{ doc.name }}</td>
 				</tr>
 			</table>
 		</div>
 		<table class="qr-part-info">
 			<tr>
-				<td class="intro">{{ L.part_intro }}</td>
-				<td class="divider"></td>
-				<td class="figures">
+				<td class="qr-intro">{{ L.part_intro }}</td>
+				<td class="qr-divider"></td>
+				<td class="qr-figures">
 					<div class="qr-label">{{ L.due_at }}</div>
-					<div class="figure">{{ doc.get_formatted("due_date") }}</div>
-					<div class="spacer"></div>
+					<div class="qr-figure">{{ doc.get_formatted("due_date") }}</div>
+					<div class="qr-spacer"></div>
 					<div class="qr-label">{{ L.amount_due }}</div>
-					<div class="figure">{{ total_formatted }}</div>
+					<div class="qr-figure">{{ total_formatted }}</div>
 				</td>
 			</tr>
 		</table>
 	</div>
-	<img class="part" src="{{ qr_bill_svg(doc, language) }}">
+	<img class="qr-part-img" src="{{ qr_bill_svg(doc, language) }}">
 </div>
 {% endif %}
