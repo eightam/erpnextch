@@ -11,9 +11,7 @@ defend against that; the only defence is to never use a bare class name.
 import re
 from pathlib import Path
 
-TEMPLATE = (
-	Path(__file__).resolve().parents[1] / "templates" / "print_formats" / "document_body.html"
-)
+TEMPLATE = Path(__file__).resolve().parents[1] / "templates" / "print_formats" / "document_body.html"
 
 #: Classes we deliberately borrow from Frappe to hide its print chrome.
 FRAPPE_CLASSES = {"print-format", "no-print", "print-toolbar", "print-hide", "action-banner"}
@@ -60,9 +58,7 @@ def test_stylesheet_targets_only_namespaced_classes():
 	for chunk in selectors:
 		declared.update(re.findall(r"\.([a-zA-Z][\w-]*)", chunk.split("}")[-1]))
 	assert declared, "no class selectors found — did the <style> block move?"
-	assert not offenders(declared), (
-		f"bare class selectors in the stylesheet: {offenders(declared)}"
-	)
+	assert not offenders(declared), f"bare class selectors in the stylesheet: {offenders(declared)}"
 
 
 def test_label_class_is_not_reintroduced():
