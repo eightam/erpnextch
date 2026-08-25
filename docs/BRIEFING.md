@@ -208,10 +208,17 @@ banking app.**
 
 ## 8. Open questions — ask, do not assume
 
-1. Kontenrahmen KMU: which exact variant does the Treuhänder want?
+1. ~~Kontenrahmen KMU: which exact variant does the Treuhänder want?~~ —
+   **released as shipped, 2026-08-25.**
 2. Lobster interface contract (format, transport, acknowledgements) — not yet
    agreed with the logistics company. Do not design against a guess.
-3. Rad 9's Raiffeisen account: is it already migrated to ISO 20022 version 2019,
-   and is the IBAN a QR-IBAN? Both change behaviour. Real camt sample files are
-   needed before the import path can be called done.
-4. Serial number scheme for frames (drives warranty registration).
+3. Rad 9's Raiffeisen account — **partly answered 2026-08-25** by a real
+   camt.054 export: the bank still sends **version .04 (2013)**, not .08, and
+   the account IBAN `CH49 8129 6000 0127 1286 2` (IID 81296) is **not** a
+   QR-IBAN. QRR payments arrive on it anyway — the bank reports the account
+   under its regular IBAN while the payment was made to the QR-IBAN. The
+   QR-IBAN itself is still outstanding and is needed before real QR bills go
+   out.
+4. ~~Serial number scheme for frames~~ — **answered 2026-08-19**: the factory
+   engraves them (`RA<YY><WW><letter><NNN>`, forks `RAFK…`). We validate, we
+   never generate. See `pinto_erp/docs/serial-numbers.md`.
