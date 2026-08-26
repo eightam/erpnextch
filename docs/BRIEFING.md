@@ -216,9 +216,16 @@ banking app.**
    camt.054 export: the bank still sends **version .04 (2013)**, not .08, and
    the account IBAN `CH49 8129 6000 0127 1286 2` (IID 81296) is **not** a
    QR-IBAN. QRR payments arrive on it anyway — the bank reports the account
-   under its regular IBAN while the payment was made to the QR-IBAN. The
-   QR-IBAN itself is still outstanding and is needed before real QR bills go
-   out.
+   under its regular IBAN while the payment was made to the QR-IBAN.
+
+   **Still outstanding, and now the only blocker on this path:** PINTO's own
+   IBAN and QR-IBAN. The export above is a sample from the *Rad 9* account and
+   the accounts on staging are **placeholders** (Nick, 2026-08-26). Real QR
+   bills cannot go out until the QR-IBAN arrives.
+
+   The import does not wait for it: it resolves the bank account by IBAN when
+   it can and asks when it cannot, so a file from an account we do not carry
+   is a question, not a failure. See `erpnextch/docs/camt-import.md`.
 4. ~~Serial number scheme for frames~~ — **answered 2026-08-19**: the factory
    engraves them (`RA<YY><WW><letter><NNN>`, forks `RAFK…`). We validate, we
    never generate. See `pinto_erp/docs/serial-numbers.md`.

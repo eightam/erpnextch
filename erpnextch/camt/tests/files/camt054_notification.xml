@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+  camt.054.001.04 (ISO 20022 version 2013), the shape a Swiss bank delivers
+  today. Structurally identical to a real Raiffeisen debit/credit notification;
+  every name, address, IBAN and reference below is a PLACEHOLDER.
+
+  The IBANs use IID 99999, which is not issued to any Swiss bank, so they can
+  never collide with a real account. Their check digits are valid so that
+  validate_iban() accepts them.
+
+  Note the account IBAN is a NORMAL IBAN while the payment carries a QRR
+  reference — exactly what a real file looks like, because the QR-IBAN is a
+  separate number on the same account. The import must not reject this.
+-->
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:camt.054.001.04" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <BkToCstmrDbtCdtNtfctn>
+        <GrpHdr>
+            <MsgId>MSG-PLACEHOLDER-0001</MsgId>
+            <CreDtTm>2026-08-25T09:45:06.438+02:00</CreDtTm>
+            <AddtlInf>PRODUCTIVE</AddtlInf>
+        </GrpHdr>
+        <Ntfctn>
+            <Id>NTF-PLACEHOLDER-0001</Id>
+            <ElctrncSeqNb>51</ElctrncSeqNb>
+            <CreDtTm>2026-08-25T09:45:06.454+02:00</CreDtTm>
+            <Acct>
+                <Id>
+                    <IBAN>CH40999990000000TEST1</IBAN>
+                </Id>
+                <Svcr>
+                    <FinInstnId>
+                        <Nm>Placeholder Bank</Nm>
+                    </FinInstnId>
+                </Svcr>
+            </Acct>
+            <Ntry>
+                <NtryRef>CH88319990000000TEST2</NtryRef>
+                <Amt Ccy="CHF">537.5</Amt>
+                <CdtDbtInd>CRDT</CdtDbtInd>
+                <RvslInd>false</RvslInd>
+                <Sts>BOOK</Sts>
+                <BookgDt>
+                    <Dt>2026-08-25</Dt>
+                </BookgDt>
+                <ValDt>
+                    <Dt>2026-08-25</Dt>
+                </ValDt>
+                <AcctSvcrRef>90000000001</AcctSvcrRef>
+                <BkTxCd>
+                    <Domn>
+                        <Cd>PMNT</Cd>
+                        <Fmly>
+                            <Cd>RCDT</Cd>
+                            <SubFmlyCd>VCOM</SubFmlyCd>
+                        </Fmly>
+                    </Domn>
+                    <Prtry>
+                        <Cd>1004</Cd>
+                    </Prtry>
+                </BkTxCd>
+                <Chrgs>
+                    <TtlChrgsAndTaxAmt Ccy="CHF">0</TtlChrgsAndTaxAmt>
+                </Chrgs>
+                <NtryDtls>
+                    <TxDtls>
+                        <Refs>
+                            <AcctSvcrRef>90000000001</AcctSvcrRef>
+                            <EndToEndId>NOTPROVIDED</EndToEndId>
+                            <Prtry>
+                                <Tp>01</Tp>
+                                <Ref>9999  9999</Ref>
+                            </Prtry>
+                        </Refs>
+                        <Amt Ccy="CHF">537.5</Amt>
+                        <CdtDbtInd>CRDT</CdtDbtInd>
+                        <BkTxCd>
+                            <Domn>
+                                <Cd>PMNT</Cd>
+                                <Fmly>
+                                    <Cd>RCDT</Cd>
+                                    <SubFmlyCd>VCOM</SubFmlyCd>
+                                </Fmly>
+                            </Domn>
+                        </BkTxCd>
+                        <RltdPties>
+                            <Dbtr>
+                                <Nm>Platzhalter Kundin</Nm>
+                                <PstlAdr>
+                                    <StrtNm>Musterstrasse</StrtNm>
+                                    <BldgNb>1</BldgNb>
+                                    <PstCd>9000</PstCd>
+                                    <TwnNm>Musterhausen</TwnNm>
+                                    <Ctry>CH</Ctry>
+                                </PstlAdr>
+                            </Dbtr>
+                            <DbtrAcct>
+                                <Id>
+                                    <IBAN>CH18999990000000TEST9</IBAN>
+                                </Id>
+                            </DbtrAcct>
+                            <UltmtDbtr>
+                                <Nm>Platzhalter Kundin</Nm>
+                            </UltmtDbtr>
+                        </RltdPties>
+                        <RmtInf>
+                            <Strd>
+                                <CdtrRefInf>
+                                    <Tp>
+                                        <CdOrPrtry>
+                                            <Prtry>QRR</Prtry>
+                                        </CdOrPrtry>
+                                    </Tp>
+                                    <Ref>099999000000000000000000014</Ref>
+                                </CdtrRefInf>
+                                <AddtlRmtInf>R.0001</AddtlRmtInf>
+                            </Strd>
+                        </RmtInf>
+                        <RltdDts>
+                            <AccptncDtTm>2026-08-25T00:00:00.000+02:00</AccptncDtTm>
+                        </RltdDts>
+                    </TxDtls>
+                </NtryDtls>
+            </Ntry>
+        </Ntfctn>
+    </BkToCstmrDbtCdtNtfctn>
+</Document>

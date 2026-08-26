@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  camt.053.001.08 (ISO 20022 version 2019). Same element names as the .04
+  above, different namespace — this file exists to prove the parser reads both
+  without a flag, which is the whole point of matching on local names.
+
+  It also carries the awkward shapes, deliberately:
+    Ntry 1  batch booking (Sammelbuchung): two TxDtls under one entry, both
+            repeating the entry's AcctSvcrRef — they must not collapse into one
+    Ntry 2  PDNG, announced but not booked — skipped by default
+    Ntry 3  debit with a SCOR reference
+    Ntry 4  reversal of a credit: the money moves the other way
+    Ntry 5  no TxDtls at all — some banks put everything on the entry
+  Sts and BookgDt use the 2019 shapes (<Sts><Cd>, <DtTm>).
+
+  All names, IBANs and references are PLACEHOLDERS; IID 99999 is not issued.
+-->
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:camt.053.001.08">
+    <BkToCstmrStmt>
+        <GrpHdr>
+            <MsgId>MSG-PLACEHOLDER-0002</MsgId>
+            <CreDtTm>2026-08-26T06:00:00.000+02:00</CreDtTm>
+        </GrpHdr>
+        <Stmt>
+            <Id>STM-PLACEHOLDER-0002</Id>
+            <ElctrncSeqNb>52</ElctrncSeqNb>
+            <CreDtTm>2026-08-26T06:00:00.000+02:00</CreDtTm>
+            <Acct>
+                <Id><IBAN>CH40999990000000TEST1</IBAN></Id>
+                <Ccy>CHF</Ccy>
+            </Acct>
+
+            <Ntry>
+                <Amt Ccy="CHF">300.00</Amt>
+                <CdtDbtInd>CRDT</CdtDbtInd>
+                <RvslInd>false</RvslInd>
+                <Sts><Cd>BOOK</Cd></Sts>
+                <BookgDt><DtTm>2026-08-26T00:00:00.000+02:00</DtTm></BookgDt>
+                <ValDt><DtTm>2026-08-26T00:00:00.000+02:00</DtTm></ValDt>
+                <AcctSvcrRef>90000000002</AcctSvcrRef>
+                <BkTxCd><Domn><Cd>PMNT</Cd><Fmly><Cd>RCDT</Cd><SubFmlyCd>VCOM</SubFmlyCd></Fmly></Domn></BkTxCd>
+                <NtryDtls>
+                    <TxDtls>
+                        <Refs><AcctSvcrRef>90000000002</AcctSvcrRef></Refs>
+                        <Amt Ccy="CHF">100.00</Amt>
+                        <CdtDbtInd>CRDT</CdtDbtInd>
+                        <RltdPties>
+                            <Dbtr><Nm>Platzhalter Eins</Nm></Dbtr>
+                            <DbtrAcct><Id><IBAN>CH18999990000000TEST9</IBAN></Id></DbtrAcct>
+                        </RltdPties>
+                        <RmtInf><Strd><CdtrRefInf>
+                            <Tp><CdOrPrtry><Prtry>QRR</Prtry></CdOrPrtry></Tp>
+                            <Ref>099999000000000000000000022</Ref>
+                        </CdtrRefInf></Strd></RmtInf>
+                    </TxDtls>
+                    <TxDtls>
+                        <Refs><AcctSvcrRef>90000000002</AcctSvcrRef></Refs>
+                        <Amt Ccy="CHF">200.00</Amt>
+                        <CdtDbtInd>CRDT</CdtDbtInd>
+                        <RltdPties>
+                            <Dbtr><Nm>Platzhalter Zwei</Nm></Dbtr>
+                        </RltdPties>
+                        <RmtInf><Strd><CdtrRefInf>
+                            <Tp><CdOrPrtry><Prtry>QRR</Prtry></CdOrPrtry></Tp>
+                            <Ref>099999000000000000000000038</Ref>
+                        </CdtrRefInf></Strd></RmtInf>
+                    </TxDtls>
+                </NtryDtls>
+            </Ntry>
+
+            <Ntry>
+                <Amt Ccy="CHF">42.00</Amt>
+                <CdtDbtInd>CRDT</CdtDbtInd>
+                <Sts><Cd>PDNG</Cd></Sts>
+                <ValDt><Dt>2026-08-27</Dt></ValDt>
+                <AcctSvcrRef>90000000003</AcctSvcrRef>
+                <NtryDtls><TxDtls>
+                    <Refs><AcctSvcrRef>90000000003</AcctSvcrRef></Refs>
+                    <Amt Ccy="CHF">42.00</Amt>
+                    <RltdPties><Dbtr><Nm>Platzhalter Schwebend</Nm></Dbtr></RltdPties>
+                </TxDtls></NtryDtls>
+            </Ntry>
+
+            <Ntry>
+                <Amt Ccy="CHF">89.90</Amt>
+                <CdtDbtInd>DBIT</CdtDbtInd>
+                <Sts><Cd>BOOK</Cd></Sts>
+                <BookgDt><Dt>2026-08-26</Dt></BookgDt>
+                <AcctSvcrRef>90000000004</AcctSvcrRef>
+                <BkTxCd><Domn><Cd>PMNT</Cd><Fmly><Cd>ICDT</Cd><SubFmlyCd>AUTT</SubFmlyCd></Fmly></Domn></BkTxCd>
+                <NtryDtls><TxDtls>
+                    <Refs>
+                        <AcctSvcrRef>90000000004</AcctSvcrRef>
+                        <EndToEndId>PLACEHOLDER-E2E-0004</EndToEndId>
+                    </Refs>
+                    <Amt Ccy="CHF">89.90</Amt>
+                    <CdtDbtInd>DBIT</CdtDbtInd>
+                    <RltdPties>
+                        <Cdtr><Nm>Platzhalter Lieferant</Nm></Cdtr>
+                        <CdtrAcct><Id><IBAN>CH18999990000000TEST9</IBAN></Id></CdtrAcct>
+                    </RltdPties>
+                    <RmtInf><Strd><CdtrRefInf>
+                        <Tp><CdOrPrtry><Cd>SCOR</Cd></CdOrPrtry></Tp>
+                        <Ref>RF96PLACEHOLDER01</Ref>
+                    </CdtrRefInf></Strd></RmtInf>
+                </TxDtls></NtryDtls>
+            </Ntry>
+
+            <Ntry>
+                <Amt Ccy="CHF">50.00</Amt>
+                <CdtDbtInd>CRDT</CdtDbtInd>
+                <RvslInd>true</RvslInd>
+                <Sts><Cd>BOOK</Cd></Sts>
+                <BookgDt><Dt>2026-08-26</Dt></BookgDt>
+                <AcctSvcrRef>90000000005</AcctSvcrRef>
+                <NtryDtls><TxDtls>
+                    <Refs><AcctSvcrRef>90000000005</AcctSvcrRef></Refs>
+                    <Amt Ccy="CHF">50.00</Amt>
+                    <CdtDbtInd>CRDT</CdtDbtInd>
+                    <RltdPties><Dbtr><Nm>Platzhalter Storno</Nm></Dbtr></RltdPties>
+                </TxDtls></NtryDtls>
+            </Ntry>
+
+            <Ntry>
+                <Amt Ccy="CHF">12.35</Amt>
+                <CdtDbtInd>DBIT</CdtDbtInd>
+                <Sts><Cd>BOOK</Cd></Sts>
+                <BookgDt><Dt>2026-08-26</Dt></BookgDt>
+                <AcctSvcrRef>90000000006</AcctSvcrRef>
+                <BkTxCd><Domn><Cd>PMNT</Cd><Fmly><Cd>CCRD</Cd><SubFmlyCd>CHRG</SubFmlyCd></Fmly></Domn></BkTxCd>
+            </Ntry>
+
+        </Stmt>
+    </BkToCstmrStmt>
+</Document>

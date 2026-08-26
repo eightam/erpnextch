@@ -8,9 +8,13 @@ more:
   site); rendering of the payment part via the [`qrbill`](https://pypi.org/project/qrbill/)
   package. QRR references are enforced for QR-IBANs, SCOR (ISO 11649) for
   normal IBANs.
-- **camt.052/053/054 import**: namespace-agnostic parsing into ERPNext Bank
-  Transactions. Matching itself is left to ERPNext core's Bank Reconciliation
-  Tool.
+- **camt.052/053/054 import**: namespace-agnostic parsing (`erpnextch.camt`,
+  no Frappe imports) into ERPNext Bank Transactions (`erpnextch.camt.importer`).
+  Reads the ISO 20022 versions 2013 and 2019 without a flag, expands batch
+  bookings into their legs, skips pending entries and de-duplicates on the
+  bank's own reference, so re-importing a file books nothing twice. Matching
+  itself is left to ERPNext core's Bank Reconciliation Tool — see
+  `docs/camt-import.md`.
 - **Kontenrahmen KMU**: a Swiss SME chart of accounts, applied via a setup
   function. **This is a starting point, not an authoritative chart** — have
   your fiduciary (Treuhänder) review and adapt it before going live.
