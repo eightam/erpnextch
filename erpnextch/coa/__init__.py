@@ -6,9 +6,13 @@ chart JSON from other apps, so the chart is applied via
 Company-form dropdown: create the Company normally (it gets the standard
 chart), then call :func:`apply_kmu_chart` to replace it.
 
-The chart is a starting point following the common Swiss SME structure
-(classes 1-8; class 9 is not needed — ERPNext closes periods virtually).
-It needs fiduciary (Treuhänder) sign-off before go-live.
+The chart follows the common Swiss SME structure (classes 1-8; class 9 is
+not needed — ERPNext closes periods virtually). It is a starting point for a
+new installation and **needs fiduciary (Treuhänder) sign-off before go-live**
+— export it with :func:`export_chart_csv` and have it reviewed.
+
+For the PINTO installation that sign-off happened on 2026-08-25; other
+projects have to obtain their own.
 """
 
 import json

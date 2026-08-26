@@ -73,7 +73,7 @@ def render_qr_svg(data: QRBillData, language: str = "de") -> str:
 	im = bill.qr_image()
 	buff = io.BytesIO()
 	im.save(buff)
-	m = re.search(r'<path [^>]*>', buff.getvalue().decode())
+	m = re.search(r"<path [^>]*>", buff.getvalue().decode())
 	if not m:
 		raise ValueError("Unable to extract path data from the QR code SVG image")
 	m = re.search(r' d="([^"]*)"', m.group())

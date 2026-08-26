@@ -32,6 +32,7 @@ ignore = [
     "W191",   # indentation contains tabs
     "RUF001", # ambiguous unicode — the QR charset/sanitizer handles these on purpose
     "RUF002", # ambiguous unicode in docstrings (× in dimensions)
+    "RUF003", # ditto in comments — the same ×, spec dimensions are quoted verbatim
 ]
 typing-modules = ["frappe.types.DF"]
 
