@@ -27,5 +27,6 @@ jinja = {
 		"erpnextch.swiss_qr.sales_invoice.formatted_company_iban",
 		"erpnextch.swiss_qr.sales_invoice.company_logo_data_uri",
 		"erpnextch.swiss_qr.sales_invoice.file_data_uri",
+		"erpnextch.print.item_note.item_note",
 	],
 }
