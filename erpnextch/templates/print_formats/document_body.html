@@ -17,6 +17,10 @@
       mode                set to "pick_list" to render a Sales Order as an
                           internal Rüstschein (picking list): no prices, a
                           warehouse column instead; default none
+      item_note_field     fieldname on the item row (e.g. a Custom Field)
+                          printed as a small line under the item code when
+                          set on that row; default none
+      item_note_label     caption in front of that line, default none
     Everything else is data-driven: Company address and tax id, the default
     bank account IBAN, payment terms.
 
@@ -263,6 +267,7 @@
 		font-family: {{ mono_stack }}; font-size: 7.9pt; color: #949A90;
 		letter-spacing: 0.02em; line-height: 1.3; padding-top: 1mm;
 	}
+	table.qr-items .qr-item-note { font-size: 8.6pt; color: #6B7168; line-height: 1.3; padding-top: 1mm; }
 	table.qr-items .qr-qty { font-weight: 600; font-size: 10.1pt; }
 	table.qr-items .qr-rate { font-size: 10.1pt; color: #6B7168; }
 	table.qr-items .qr-amount { font-weight: 700; font-size: 10.1pt; }
@@ -394,6 +399,9 @@
 					<td class="qr-item">
 						<div class="qr-item-name">{{ item.item_name }}</div>
 						<div class="qr-item-code">{{ item.item_code }}</div>
+						{% if item_note_field and item.get(item_note_field) %}
+						<div class="qr-item-note">{% if item_note_label %}{{ item_note_label }}: {% endif %}{{ item.get(item_note_field) }}</div>
+						{% endif %}
 					</td>
 					<td class="qr-num qr-qty">{{ item.get_formatted("qty") }}</td>
 					{% if show_money %}
