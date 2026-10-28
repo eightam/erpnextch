@@ -36,13 +36,10 @@ def format_note(spec, item, language: str = "de") -> str:
 	value = item.get(field)
 	if not value:
 		return ""
+	# frappe.append_hook merges dict hooks key by key and wraps each leaf in
+	# a list: {"de": ["Referenz"], "fr": ["Référence"]}.
 	labels = spec.get("label") or {}
-	if isinstance(labels, list):
-		merged = {}
-		for entry in labels:
-			merged.update(entry or {})
-		labels = merged
-	label = labels.get(language) or labels.get("de")
+	label = _last(labels.get(language)) or _last(labels.get("de"))
 	return f"{label}: {value}" if label else str(value)
 
 
